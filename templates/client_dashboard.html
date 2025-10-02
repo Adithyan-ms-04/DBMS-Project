@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Dashboard</title>
+<style>
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin:0; }
+  .header { background: #66a6ff; color: white; padding: 20px; text-align: center; }
+  .container { max-width: 900px; margin: 30px auto; }
+  .card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+  h3 { margin-bottom: 15px; color: #333; }
+  input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; }
+  button { padding: 10px 20px; border: none; border-radius: 8px; background: #66a6ff; color:white; cursor:pointer; transition: 0.3s; }
+  button:hover { background: #5588e8; }
+  ul { list-style: none; padding: 0; }
+  li { padding: 10px 0; border-bottom: 1px solid #eee; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h2>Client Dashboard</h2>
+</div>
+<div class="container">
+  <div class="card">
+    <h3>Post New Project</h3>
+    <input type="text" id="title" placeholder="Project Title" required>
+    <textarea id="description" placeholder="Description"></textarea>
+    <input type="number" id="budget" placeholder="Budget">
+    <button onclick="postProject()">Post Project</button>
+  </div>
+
+  <div class="card">
+    <h3>Freelancers</h3>
+    <ul id="freelancerList"></ul>
+  </div>
+</div>
+
+<script>
+const user = JSON.parse(localStorage.getItem("user"));
+async function postProject(){
+  let title = document.getElementById("title").value;
+  let description = document.getElementById("description").value;
+  let budget = document.getElementById("budget").value;
+
+  await fetch("http://127.0.0.1:5000/projects", {
+    method:"POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({client_id:user.UserID, title, description, budget})
+  });
+  alert("Project Posted!");
+  document.getElementById("title").value="";
+  document.getElementById("description").value="";
+  document.getElementById("budget").value="";
+}
+
+// Load freelancers
+async function loadFreelancers(){
+  let res = await fetch("http://127.0.0.1:5000/users");
+  let data = await res.json();
+  let list = document.getElementById("freelancerList");
+  list.innerHTML = "";
+  data.forEach(f => {
+    if(f.Role==="freelancer"){
+      let li = document.createElement("li");
+      li.innerText = f.Name + " - " + f.Email;
+      list.appendChild(li);
+    }
+  });
+}
+loadFreelancers();
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Freelancer Dashboard</title>
+<style>
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin:0; }
+  .header { background: #66a6ff; color: white; padding: 20px; text-align: center; }
+  .container { max-width: 900px; margin: 30px auto; }
+  .card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+  button { padding: 8px 16px; border:none; border-radius:8px; background:#66a6ff; color:white; cursor:pointer; transition:0.3s; }
+  button:hover { background:#5588e8; }
+  ul { list-style:none; padding:0; }
+  li { padding:10px 0; border-bottom:1px solid #eee; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h2>Freelancer Dashboard</h2>
+</div>
+<div class="container">
+  <div class="card">
+    <h3>Open Projects</h3>
+    <ul id="projectList"></ul>
+  </div>
+</div>
+
+<script>
+const user = JSON.parse(localStorage.getItem("user"));
+
+async function loadProjects(){
+  let res = await fetch("http://127.0.0.1:5000/projects");
+  let projects = await res.json();
+  let list = document.getElementById("projectList");
+  list.innerHTML = "";
+  projects.forEach(p=>{
+    let li = document.createElement("li");
+    li.innerHTML = `<b>${p.Title}</b> - ${p.Description} - Budget: ${p.Budget} 
+                    <button onclick="placeBid(${p.ProjectID})">Place Bid</button>`;
+    list.appendChild(li);
+  });
+}
+
+async function placeBid(projectId){
+  let amount = prompt("Enter your bid amount:");
+  let proposal = prompt("Enter proposal details:");
+
+  await fetch("http://127.0.0.1:5000/bids", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({project_id:projectId, freelancer_id:user.UserID, bid_amount:amount, cover_letter:proposal})
+  });
+  alert("Bid placed!");
+}
+
+loadProjects();
+</script>
+</body>
+</html>
