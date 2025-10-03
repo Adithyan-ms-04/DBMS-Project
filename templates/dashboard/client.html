@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Client Dashboard - FPRMS{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="list-group">
+            <a href="{{ url_for('client_dashboard') }}" class="list-group-item list-group-item-action active">Dashboard</a>
+            <a href="{{ url_for('create_project') }}" class="list-group-item list-group-item-action">Create Project</a>
+            <a href="#" class="list-group-item list-group-item-action">My Projects</a>
+            <a href="#" class="list-group-item list-group-item-action">My Profile</a>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <h2>Client Dashboard</h2>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5>My Projects</h5>
+            </div>
+            <div class="card-body">
+                {% if projects %}
+                    {% for project in projects %}
+                    <div class="border-bottom pb-2 mb-2">
+                        <h6>{{ project.Title }}</h6>
+                        <p>{{ project.Description[:100] }}{% if project.Description|length > 100 %}...{% endif %}</p>
+                        <p>Budget: ${{ project.Budget }}</p>
+                        <p>Status: <span class="badge bg-{{ 'success' if project.Status == 'completed' else 'warning' }}">{{ project.Status }}</span></p>
+                        <a href="{{ url_for('project_details', project_id=project.ProjectID) }}" class="btn btn-sm btn-primary">View Details</a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>You haven't created any projects yet.</p>
+                    <a href="{{ url_for('create_project') }}" class="btn btn-primary">Create Your First Project</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

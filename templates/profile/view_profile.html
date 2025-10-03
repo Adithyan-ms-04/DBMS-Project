@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - FPRMS{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4>My Profile</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Personal Information</h5>
+                        <p><strong>Name:</strong> {{ user.Name }}</p>
+                        <p><strong>Email:</strong> {{ user.Email }}</p>
+                        <p><strong>Role:</strong> {{ user.Role.title() }}</p>
+                        <p><strong>Member since:</strong> {{ user.CreatedAt.strftime('%B %Y') }}</p>
+                    </div>
+                    
+                    {% if user.Role == 'freelancer' and freelancer_profile %}
+                    <div class="col-md-6">
+                        <h5>Professional Information</h5>
+                        <p><strong>Skills:</strong> {{ freelancer_profile.Skills }}</p>
+                        <p><strong>Experience:</strong> {{ freelancer_profile.Experience }}</p>
+                        {% if freelancer_profile.PortfolioURL %}
+                        <p><strong>Portfolio:</strong> 
+                            <a href="{{ freelancer_profile.PortfolioURL }}" target="_blank">{{ freelancer_profile.PortfolioURL }}</a>
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">Edit Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
