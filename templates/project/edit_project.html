@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Project - FPRMS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2>Edit Project</h2>
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    <div class="form-group mb-3">
+                        <label for="title" class="form-label">Project Title</label>
+                        <input type="text" class="form-control" id="title" name="title" value="{{ project.Title }}" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="description" class="form-label">Project Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="5" required>{{ project.Description }}</textarea>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="budget" class="form-label">Budget ($)</label>
+                        <input type="number" class="form-control" id="budget" name="budget" step="0.01" value="{{ project.Budget }}" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="open" {% if project.Status == 'open' %}selected{% endif %}>Open</option>
+                            <option value="in_progress" {% if project.Status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                            <option value="completed" {% if project.Status == 'completed' %}selected{% endif %}>Completed</option>
+                            <option value="cancelled" {% if project.Status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Project</button>
+                    <a href="{{ url_for('project_details', project_id=project.ProjectID) }}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

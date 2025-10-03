@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Projects - FPRMS{% endblock %}
+
+{% block content %}
+<h2>Project Management</h2>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Client</th>
+                        <th>Budget</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Bids</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in projects %}
+                    <tr>
+                        <td>{{ project.ProjectID }}</td>
+                        <td>{{ project.Title }}</td>
+                        <td>{{ project.client.Name }}</td>
+                        <td>${{ project.Budget }}</td>
+                        <td><span class="badge bg-{{ 'success' if project.Status == 'completed' else 'warning' if project.Status == 'in_progress' else 'info' }}">{{ project.Status }}</span></td>
+                        <td>{{ project.CreatedAt.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ project.bids|length }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
