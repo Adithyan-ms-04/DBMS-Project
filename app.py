@@ -39,16 +39,20 @@ def freelancer_dashboard_page():
 # -----------------------------
 # Register API
 # -----------------------------
-@app.route('/register', methods=['POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
-    data = request.get_json()
-    name = data.get('name')
-    email = data.get('email')
-    password = data.get('password')
-    role = data.get('role')
+    if request.method == 'GET':
+        # Show the registration page
+        return render_template('register.html')
+
+    # POST → handle form submission
+    name = request.form.get('name')
+    email = request.form.get('email')
+    password = request.form.get('password')
+    role = request.form.get('role')
 
     if not all([name,email,password,role]):
-        return jsonify({'error':'All fields required'}), 400
+        return "All fields are required", 400
 
     hashed = generate_password_hash(password)
     conn = get_db_connection()
@@ -60,10 +64,10 @@ def register():
     except mysql.connector.Error as e:
         cursor.close()
         conn.close()
-        return jsonify({'error':str(e)}), 400
+        return f"Error: {str(e)}", 400
     cursor.close()
     conn.close()
-    return jsonify({'message':'Registered successfully'}), 201
+    return redirect(url_for('login'))  # redirect to login page after registration
 
 # -----------------------------
 # Login API
