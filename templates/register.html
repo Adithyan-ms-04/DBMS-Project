@@ -1,76 +1,167 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FPRMS Register</title>
-<style>
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(120deg, #89f7fe, #66a6ff);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-  }
-  .container {
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    width: 350px;
-    text-align: center;
-  }
-  h2 { margin-bottom: 20px; color: #333; }
-  input, select {
-    width: 100%; padding: 12px 15px; margin: 10px 0;
-    border: 1px solid #ddd; border-radius: 8px; font-size: 14px;
-  }
-  button {
-    width: 100%; padding: 12px; background: #66a6ff;
-    border: none; border-radius: 8px; color: white; font-size: 16px; cursor: pointer;
-    transition: background 0.3s;
-  }
-  button:hover { background: #5588e8; }
-  p { margin-top: 15px; font-size: 14px; color: #555; }
-  a { color: #66a6ff; text-decoration: none; }
-  a:hover { text-decoration: underline; }
-</style>
+    <title>Register - FPRMS</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #ff9966, #ff5e62);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: #fff;
+            padding: 40px 30px;
+            border-radius: 12px;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.3);
+            width: 350px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #ff5e62;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #ff3b3f;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .login-link a {
+            color: #ff5e62;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .dialog button {
+            margin-top: 15px;
+            background: #ff5e62;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top:0; left:0;
+            width:100%; height:100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+    </style>
 </head>
 <body>
-<div class="container">
-  <h2>Register</h2>
-  <form id="registerForm">
-    <input type="text" id="name" placeholder="Name" required>
-    <input type="email" id="email" placeholder="Email" required>
-    <input type="password" id="password" placeholder="Password" required>
-    <select id="role">
-      <option value="client">Client</option>
-      <option value="freelancer">Freelancer</option>
-    </select>
-    <button type="submit">Register</button>
-  </form>
-  <p>Already have an account? <a href="login.html">Login</a></p>
-</div>
+    <div class="overlay" id="overlay"></div>
+    <div class="dialog" id="dialog">
+        <p id="dialog-message"></p>
+        <button onclick="closeDialog()">OK</button>
+    </div>
 
-<script>
-document.getElementById("registerForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  let name = document.getElementById("name").value;
-  let email = document.getElementById("email").value;
-  let password = document.getElementById("password").value;
-  let role = document.getElementById("role").value;
+    <div class="container">
+        <h2>Register</h2>
+        <form method="POST" action="/register">
+            <input type="text" name="name" placeholder="Full Name" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <select name="role" required>
+                <option value="">Select Role</option>
+                <option value="client">Client</option>
+                <option value="freelancer">Freelancer</option>
+                <option value="admin">Admin</option>
+            </select>
+            <button type="submit">Register</button>
+        </form>
+        <div class="login-link">
+            <p>Already have an account? <a href="/">Login here</a></p>
+        </div>
+    </div>
 
-  let res = await fetch("http://127.0.0.1:5000/register", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({name,email,password,role})
-  });
-  let data = await res.json();
-  alert(data.message || data.error);
-  if(res.ok) window.location.href = "login.html";
-});
+    <script>
+        function showDialog(message){
+            document.getElementById('dialog-message').innerText = message;
+            document.getElementById('dialog').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function closeDialog(){
+            document.getElementById('dialog').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // Show error if Flask passed an error query param
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        if(error){
+            showDialog(error);
+        }
+    </script>
+    <script>
+    function showDialog(message){
+        document.getElementById('dialog-message').innerText = message;
+        document.getElementById('dialog').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+
+    function closeDialog(){
+        document.getElementById('dialog').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+    }
+
+    // Show message from Flask
+    const message = "{{ message }}";
+    if(message){
+        showDialog(message);
+    }
 </script>
+
 </body>
 </html>
