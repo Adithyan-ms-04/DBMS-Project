@@ -3,21 +3,70 @@
 {% block title %}Edit Profile - FPRMS{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <h2>Edit Profile</h2>
-        <form method="POST">
-            <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text" class="form-control" id="name" name="name" value="{{ current_user.Name }}" required>
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Edit Profile</h2>
+                <a href="{{ url_for('view_profile') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Profile
+                </a>
             </div>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" class="form-control" id="email" name="email" value="{{ current_user.Email }}" required>
+
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0">Update Profile Information</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Personal Information</h5>
+                                <div class="mb-3">
+                                    <label for="name" class="form-label fw-bold">Full Name</label>
+                                    <input type="text" class="form-control" id="name" name="name" 
+                                           value="{{ current_user.Name }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label fw-bold">Email Address</label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           value="{{ current_user.Email }}" required>
+                                </div>
+                            </div>
+                            
+                            {% if current_user.Role == 'freelancer' and freelancer_profile %}
+                            <div class="col-md-6">
+                                <h5>Professional Information</h5>
+                                <div class="mb-3">
+                                    <label for="skills" class="form-label fw-bold">Skills</label>
+                                    <textarea class="form-control" id="skills" name="skills" rows="3">{{ freelancer_profile.Skills }}</textarea>
+                                    <div class="form-text">List your skills separated by commas</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="experience" class="form-label fw-bold">Experience</label>
+                                    <textarea class="form-control" id="experience" name="experience" rows="3">{{ freelancer_profile.Experience }}</textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="portfolio_url" class="form-label fw-bold">Portfolio URL</label>
+                                    <input type="url" class="form-control" id="portfolio_url" name="portfolio_url" 
+                                           value="{{ freelancer_profile.PortfolioURL or '' }}">
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-save me-1"></i>Update Profile
+                            </button>
+                            <a href="{{ url_for('view_profile') }}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary mt-3">Update Profile</button>
-            <a href="{{ url_for('view_profile') }}" class="btn btn-secondary mt-3">Cancel</a>
-        </form>
+        </div>
     </div>
 </div>
 {% endblock %}

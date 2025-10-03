@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.Title }} - FPRMS{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Project Details -->
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0">{{ project.Title }}</h4>
+                    <span class="badge bg-{{ 'success' if project.Status == 'open' else 'warning' if project.Status == 'in_progress' else 'info' }} p-2">
+                        {{ project.Status|replace('_', ' ')|title }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <strong><i class="fas fa-user me-2"></i>Client:</strong>
+                        <p class="mb-2">{{ project.client.Name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong><i class="fas fa-dollar-sign me-2"></i>Budget:</strong>
+                        <p class="mb-2">${{ project.Budget }}</p>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <strong><i class="fas fa-align-left me-2"></i>Description:</strong>
+                    <p class="mt-2">{{ project.Description }}</p>
+                </div>
+
+                <div class="row text-muted">
+                    <div class="col-md-6">
+                        <small><i class="fas fa-calendar me-1"></i> Posted: {{ project.CreatedAt.strftime('%B %d, %Y') }}</small>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <small>Project ID: #{{ project.ProjectID }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Milestones Section -->
+        {% if milestones %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Project Milestones</h5>
+            </div>
+            <div class="card-body">
+                {% for milestone in milestones %}
+                <div class="border-bottom pb-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">{{ milestone.Title }}</h6>
+                            <p class="text-muted small mb-2">{{ milestone.Description }}</p>
+                        </div>
+                        <span class="badge bg-{{ 'success' if milestone.Status == 'completed' else 'warning' if milestone.Status == 'in_progress' else 'secondary' }}">
+                            {{ milestone.Status|title }}
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i> Due: {{ milestone.DueDate.strftime('%b %d, %Y') }}
+                        </small>
+                        {% if milestone.Amount %}
+                        <strong class="text-primary">${{ milestone.Amount }}</strong>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Client Actions -->
+        {% if current_user.UserID == project.ClientID %}
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h5 class="card-title mb-0 text-dark">Project Management</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('edit_project', project_id=project.ProjectID) }}" class="btn btn-primary">
+                        <i class="fas fa-edit me-1"></i>Edit Project
+                    </a>
+                    
+                    {% if project.Status == 'open' and bids %}
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#acceptBidModal">
+                        <i class="fas fa-check me-1"></i>Accept Bid
+                    </button>
+                    {% endif %}
+                    
+                    {% if project.Status != 'completed' %}
+                    <a href="{{ url_for('close_project', project_id=project.ProjectID) }}" 
+                       class="btn btn-info"
+                       onclick="return confirm('Mark this project as completed?')">
+                        <i class="fas fa-flag me-1"></i>Mark Complete
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-md-4">
+        <!-- Bid Placement (for freelancers) -->
+        <!-- In the project details template, update the bid placement section -->
+{% if current_user.Role == 'freelancer' and project.Status == 'open' %}
+<div class="card mb-4">
+    <div class="card-header bg-success text-white">
+        <h5 class="card-title mb-0">Place Your Bid</h5>
+    </div>
+    <div class="card-body">
+        {% if user_bid %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>You've already placed a bid on this project.</strong>
+                <p class="mb-0 mt-1">Your bid: ${{ user_bid.BidAmount }}</p>
+                <p class="mb-0">Status: <span class="badge bg-{{ 'success' if user_bid.Status == 'accepted' else 'warning' }}">{{ user_bid.Status }}</span></p>
+            </div>
+        {% else %}
+            <form method="POST" action="{{ url_for('place_bid', project_id=project.ProjectID) }}">
+                <div class="mb-3">
+                    <label for="bid_amount" class="form-label fw-bold">Your Bid Amount ($)</label>
+                    <input type="number" class="form-control" id="bid_amount" name="bid_amount" 
+                           step="0.01" min="1" max="{{ project.Budget * 2 }}" required
+                           placeholder="Enter your bid amount">
+                    <div class="form-text">Project budget: ${{ project.Budget }}</div>
+                </div>
+                <div class="mb-3">
+                    <label for="cover_letter" class="form-label fw-bold">Cover Letter</label>
+                    <textarea class="form-control" id="cover_letter" name="cover_letter" 
+                              rows="4" required placeholder="Why are you the best fit for this project?"></textarea>
+                </div>
+                <button type="submit" class="btn btn-success w-100">
+                    <i class="fas fa-paper-plane me-1"></i>Submit Bid
+                </button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+        <!-- Bids Overview -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    Bids ({{ bids|length }})
+                    {% if bids %}
+                    <small class="text-muted">Avg: ${{ "%.2f"|format(bids|sum(attribute='BidAmount') / bids|length) }}</small>
+                    {% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if bids %}
+                    {% for bid in bids %}
+                    <div class="border-bottom pb-2 mb-2">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <strong>{{ bid.freelancer.Name }}</strong>
+                            <span class="badge bg-{{ 'success' if bid.Status == 'accepted' else 'warning' if bid.Status == 'pending' else 'secondary' }}">
+                                {{ bid.Status }}
+                            </span>
+                        </div>
+                        <p class="mb-1 text-primary fw-bold">${{ bid.BidAmount }}</p>
+                        <p class="small text-muted mb-2">{{ bid.CoverLetter[:80] }}...</p>
+                        <small class="text-muted">{{ bid.BidDate.strftime('%b %d, %Y') }}</small>
+                        
+                        <!-- Accept Bid Button (for client) -->
+                        {% if current_user.UserID == project.ClientID and project.Status == 'open' and bid.Status == 'pending' %}
+                        <div class="mt-2">
+                            <a href="{{ url_for('accept_bid', project_id=project.ProjectID, bid_id=bid.BidID) }}" 
+                               class="btn btn-success btn-sm w-100"
+                               onclick="return confirm('Are you sure you want to accept this bid from {{ bid.freelancer.Name }}?')">
+                                <i class="fas fa-check me-1"></i>Accept Bid
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center py-3">
+                        <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                        No bids yet
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Project Info Card -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Project Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <strong>Status:</strong>
+                    <span class="badge bg-{{ 'success' if project.Status == 'open' else 'warning' if project.Status == 'in_progress' else 'info' }} float-end">
+                        {{ project.Status|replace('_', ' ')|title }}
+                    </span>
+                </div>
+                <div class="mb-2">
+                    <strong>Budget:</strong>
+                    <span class="float-end">${{ project.Budget }}</span>
+                </div>
+                <div class="mb-2">
+                    <strong>Bids Received:</strong>
+                    <span class="float-end">{{ bids|length }}</span>
+                </div>
+                <div class="mb-2">
+                    <strong>Posted:</strong>
+                    <span class="float-end">{{ project.CreatedAt.strftime('%b %d, %Y') }}</span>
+                </div>
+                <div>
+                    <strong>Client:</strong>
+                    <span class="float-end">{{ project.client.Name }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Accept Bid Modal -->
+<div class="modal fade" id="acceptBidModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Accept a Bid</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Select a freelancer to work on this project:</p>
+                {% for bid in bids if bid.Status == 'pending' %}
+                <div class="border p-3 mb-2 rounded">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ bid.freelancer.Name }}</strong>
+                            <br>
+                            <span class="text-primary">${{ bid.BidAmount }}</span>
+                        </div>
+                        <a href="{{ url_for('accept_bid', project_id=project.ProjectID, bid_id=bid.BidID) }}" 
+                           class="btn btn-success btn-sm"
+                           onclick="return confirm('Accept {{ bid.freelancer.Name }}\'s bid of ${{ bid.BidAmount }}?')">
+                            Select
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+}
+.badge {
+    font-size: 0.75em;
+}
+</style>
+{% endblock %}

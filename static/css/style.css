@@ -21,16 +21,32 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
+    padding-top: 76px; /* Add padding to account for fixed navbar */
 }
 
 /* Navbar Styling */
+.navbar {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
 .navbar-brand {
     font-weight: bold;
     font-size: 1.5rem;
 }
 
-.navbar {
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+/* Main content area */
+.main-content {
+    min-height: calc(100vh - 76px);
+    background: white;
+    border-radius: 20px 20px 0 0;
+    margin-top: 0;
+    box-shadow: 0 -5px 30px rgba(0,0,0,0.1);
+}
+
+/* Container padding */
+.container-fluid, .container {
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 /* Card Styling */
@@ -96,11 +112,12 @@ body {
 
 /* Login/Register Pages */
 .auth-container {
-    min-height: 100vh;
+    min-height: calc(100vh - 76px);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
+    background: transparent;
 }
 
 .auth-card {
@@ -110,6 +127,7 @@ body {
     overflow: hidden;
     max-width: 400px;
     width: 100%;
+    margin-top: 0;
 }
 
 .auth-header {
@@ -128,15 +146,17 @@ body {
     background: white;
     min-height: calc(100vh - 76px);
     border-radius: 20px 20px 0 0;
-    margin-top: 76px;
+    margin-top: 0;
     box-shadow: 0 -5px 30px rgba(0,0,0,0.1);
+    padding: 20px;
 }
 
 .sidebar {
     background: linear-gradient(180deg, var(--primary), var(--secondary));
     color: white;
-    min-height: calc(100vh - 76px);
-    border-radius: 0;
+    min-height: calc(100vh - 116px); /* Adjusted for padding */
+    border-radius: 15px;
+    padding: 0;
 }
 
 .sidebar .list-group-item {
@@ -174,6 +194,7 @@ body {
     border-radius: 10px;
     border: none;
     box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+    margin: 15px 0;
 }
 
 /* Badge Styling */
@@ -212,17 +233,26 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
+    body {
+        padding-top: 56px; /* Smaller padding for mobile */
+    }
+    
     .sidebar {
         min-height: auto;
         margin-bottom: 20px;
     }
     
     .dashboard-container {
-        margin-top: 56px;
+        margin-top: 0;
+        padding: 15px;
     }
     
     .card {
         margin-bottom: 15px;
+    }
+    
+    .auth-container {
+        padding: 10px;
     }
 }
 
@@ -242,4 +272,29 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--secondary);
+}
+
+/* Avatar circles */
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+}
+
+/* Table improvements */
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #6c757d;
+    background-color: #f8f9fa;
+}
+
+/* Gradient backgrounds */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
 }

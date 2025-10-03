@@ -3,40 +3,95 @@
 {% block title %}My Profile - FPRMS{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-8 mx-auto">
-        <div class="card">
-            <div class="card-header">
-                <h4>My Profile</h4>
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>My Profile</h2>
+                <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">
+                    <i class="fas fa-edit me-1"></i>Edit Profile
+                </a>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h5>Personal Information</h5>
-                        <p><strong>Name:</strong> {{ user.Name }}</p>
-                        <p><strong>Email:</strong> {{ user.Email }}</p>
-                        <p><strong>Role:</strong> {{ user.Role.title() }}</p>
-                        <p><strong>Member since:</strong> {{ user.CreatedAt.strftime('%B %Y') }}</p>
-                    </div>
-                    
-                    {% if user.Role == 'freelancer' and freelancer_profile %}
-                    <div class="col-md-6">
-                        <h5>Professional Information</h5>
-                        <p><strong>Skills:</strong> {{ freelancer_profile.Skills }}</p>
-                        <p><strong>Experience:</strong> {{ freelancer_profile.Experience }}</p>
-                        {% if freelancer_profile.PortfolioURL %}
-                        <p><strong>Portfolio:</strong> 
-                            <a href="{{ freelancer_profile.PortfolioURL }}" target="_blank">{{ freelancer_profile.PortfolioURL }}</a>
-                        </p>
+
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0">Profile Information</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Personal Information</h5>
+                            <div class="mb-3">
+                                <strong>Name:</strong> {{ current_user.Name }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Email:</strong> {{ current_user.Email }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Role:</strong> 
+                                <span class="badge bg-{{ 'success' if current_user.Role == 'admin' else 'primary' if current_user.Role == 'client' else 'info' }}">
+                                    {{ current_user.Role|title }}
+                                </span>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Member since:</strong> {{ current_user.CreatedAt.strftime('%B %d, %Y') }}
+                            </div>
+                        </div>
+                        
+                        {% if current_user.Role == 'freelancer' and current_user.freelancer_profile %}
+                        <div class="col-md-6">
+                            <h5>Professional Information</h5>
+                            <div class="mb-3">
+                                <strong>Skills:</strong> 
+                                <p class="mt-1">{{ current_user.freelancer_profile.Skills }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Experience:</strong>
+                                <p class="mt-1">{{ current_user.freelancer_profile.Experience }}</p>
+                            </div>
+                            {% if current_user.freelancer_profile.PortfolioURL %}
+                            <div class="mb-3">
+                                <strong>Portfolio:</strong> 
+                                <a href="{{ current_user.freelancer_profile.PortfolioURL }}" target="_blank" class="d-block mt-1">
+                                    {{ current_user.freelancer_profile.PortfolioURL }}
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
                         {% endif %}
                     </div>
-                    {% endif %}
-                </div>
-                
-                <div class="mt-4">
-                    <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">Edit Profile</a>
                 </div>
             </div>
+
+            {% if current_user.Role == 'freelancer' %}
+            <!-- Stats for freelancers -->
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card text-white bg-primary">
+                        <div class="card-body text-center">
+                            <h3>{{ current_user.bids_made|length }}</h3>
+                            <p class="mb-0">Total Bids</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-success">
+                        <div class="card-body text-center">
+                            <h3>{{ current_user.bids_made|selectattr('Status', 'equalto', 'accepted')|list|length }}</h3>
+                            <p class="mb-0">Projects Won</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-info">
+                        <div class="card-body text-center">
+                            <h3>{{ current_user.reviews_received|length }}</h3>
+                            <p class="mb-0">Reviews</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

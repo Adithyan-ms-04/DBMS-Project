@@ -18,6 +18,11 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+# Context processor to make 'now' available in templates
+@app.context_processor
+def inject_now():
+    return {'now': datetime.utcnow()}
+
 # ========================
 # AUTHENTICATION ROUTES
 # ========================
@@ -100,16 +105,13 @@ def freelancer_dashboard():
         flash('Access denied!', 'error')
         return redirect(url_for('index'))
     
-    # Get freelancer's data
+    # Get freelancer's bids and projects
     bids = Bid.query.filter_by(FreelancerID=current_user.UserID).all()
     open_projects = Project.query.filter_by(Status='open').all()
-    accepted_bids = Bid.query.filter_by(FreelancerID=current_user.UserID, Status='accepted').all()
-    won_projects = [bid.project for bid in accepted_bids]
     
     return render_template('dashboard/freelancer.html', 
                          bids=bids, 
-                         open_projects=open_projects,
-                         won_projects=won_projects)
+                         open_projects=open_projects)
 
 @app.route('/dashboard/client')
 @login_required
@@ -152,7 +154,9 @@ def admin_dashboard():
 @app.route('/projects')
 @login_required
 def view_projects():
+    print("🔍 View Projects route called")  # Debug print
     projects = Project.query.filter_by(Status='open').all()
+    print(f"📊 Found {len(projects)} open projects")  # Debug print
     return render_template('projects/view_projects.html', projects=projects)
 
 @app.route('/projects/create', methods=['GET', 'POST'])
@@ -285,13 +289,22 @@ def my_bids():
     bids = Bid.query.filter_by(FreelancerID=current_user.UserID).all()
     return render_template('bids/my_bids.html', bids=bids)
 
+# Fixed: Removed duplicate route - keeping the better version
 @app.route('/bids/<int:bid_id>/withdraw')
 @login_required
 def withdraw_bid(bid_id):
+    if current_user.Role != 'freelancer':
+        flash('Only freelancers can withdraw bids!', 'error')
+        return redirect(url_for('index'))
+    
     bid = Bid.query.get_or_404(bid_id)
     
     if bid.FreelancerID != current_user.UserID:
         flash('Access denied!', 'error')
+        return redirect(url_for('my_bids'))
+    
+    if bid.Status != 'pending':
+        flash('You can only withdraw pending bids!', 'error')
         return redirect(url_for('my_bids'))
     
     db.session.delete(bid)

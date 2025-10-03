@@ -3,30 +3,195 @@
 {% block title %}Admin Dashboard - FPRMS{% endblock %}
 
 {% block content %}
-<h2>Admin Dashboard</h2>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="sidebar">
+                <div class="list-group">
+                    <a href="{{ url_for('admin_dashboard') }}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="{{ url_for('admin_users') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-users me-2"></i>Manage Users
+                    </a>
+                    <a href="{{ url_for('admin_projects') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tasks me-2"></i>Manage Projects
+                    </a>
+                    <a href="{{ url_for('view_profile') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user me-2"></i>My Profile
+                    </a>
+                </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <div class="card text-white bg-primary mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Total Users</h5>
-                <p class="card-text display-4">{{ total_users }}</p>
+                <!-- Quick Stats -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">System Stats</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <small class="text-muted">Total Users</small>
+                            <h5 class="mb-0">{{ total_users }}</h5>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted">Total Projects</small>
+                            <h5 class="mb-0">{{ total_projects }}</h5>
+                        </div>
+                        <div>
+                            <small class="text-muted">Total Bids</small>
+                            <h5 class="mb-0">{{ total_bids }}</h5>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card text-white bg-success mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Total Projects</h5>
-                <p class="card-text display-4">{{ total_projects }}</p>
+        
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Admin Dashboard</h2>
+                <span class="text-muted">
+                    <i class="fas fa-shield-alt me-1"></i> System Administrator
+                </span>
             </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card text-white bg-info mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Total Bids</h5>
-                <p class="card-text display-4">{{ total_bids }}</p>
+
+            <!-- Welcome Card -->
+            <div class="card bg-gradient-primary text-white mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4 class="card-title">System Overview 👋</h4>
+                            <p class="card-text mb-0">
+                                Welcome to the admin dashboard. Monitor system activity and manage platform operations.
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <i class="fas fa-shield-alt fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card text-white bg-primary">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">{{ total_users }}</h4>
+                                    <p class="card-text">Total Users</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-users fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-success">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">{{ total_projects }}</h4>
+                                    <p class="card-text">Total Projects</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-tasks fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-info">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">{{ total_bids }}</h4>
+                                    <p class="card-text">Total Bids</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-file-invoice-dollar fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Projects -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Projects</h5>
+                    <a href="{{ url_for('admin_projects') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_projects %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Client</th>
+                                        <th>Budget</th>
+                                        <th>Status</th>
+                                        <th>Bids</th>
+                                        <th>Created</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for project in recent_projects %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ project.Title }}</strong>
+                                        </td>
+                                        <td>{{ project.client.Name }}</td>
+                                        <td>${{ project.Budget }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if project.Status == 'open' else 'warning' if project.Status == 'in_progress' else 'info' }}">
+                                                {{ project.Status|replace('_', ' ')|title }}
+                                            </span>
+                                        </td>
+                                        <td>{{ project.bids|length }}</td>
+                                        <td>{{ project.CreatedAt.strftime('%b %d, %Y') }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-tasks fa-2x text-muted mb-3"></i>
+                            <p class="text-muted">No projects available yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <a href="{{ url_for('admin_users') }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-users me-2"></i>Manage Users
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a href="{{ url_for('admin_projects') }}" class="btn btn-outline-success w-100">
+                                <i class="fas fa-tasks me-2"></i>Manage Projects
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a href="{{ url_for('view_projects') }}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-search me-2"></i>Browse Projects
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

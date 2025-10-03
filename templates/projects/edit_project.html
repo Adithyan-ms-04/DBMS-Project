@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Project - FPRMS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Edit Project</h2>
+            <a href="{{ url_for('project_details', project_id=project.ProjectID) }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Project
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Project Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="title" class="form-label fw-bold">Project Title</label>
+                            <input type="text" class="form-control form-control-lg" id="title" name="title" 
+                                   value="{{ project.Title }}" required placeholder="Enter project title">
+                            <div class="form-text">Make it clear and descriptive to attract the right freelancers.</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label fw-bold">Project Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="6" 
+                                  required placeholder="Describe your project in detail...">{{ project.Description }}</textarea>
+                        <div class="form-text">
+                            Be specific about your requirements, goals, and any special instructions.
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="budget" class="form-label fw-bold">Budget ($)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="budget" name="budget" 
+                                       step="0.01" min="0" value="{{ project.Budget }}" required>
+                            </div>
+                            <div class="form-text">Set a realistic budget for your project.</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="status" class="form-label fw-bold">Project Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="open" {% if project.Status == 'open' %}selected{% endif %}>Open for Bids</option>
+                                <option value="in_progress" {% if project.Status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                                <option value="completed" {% if project.Status == 'completed' %}selected{% endif %}>Completed</option>
+                                <option value="cancelled" {% if project.Status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                            <div class="form-text">Update the current status of your project.</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-save me-1"></i>Update Project
+                        </button>
+                        <a href="{{ url_for('project_details', project_id=project.ProjectID) }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if project.Status != 'completed' and project.Status != 'cancelled' %}
+        <div class="card mt-4 border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">Project Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex gap-2">
+                    {% if project.Status == 'open' %}
+                    <a href="{{ url_for('close_project', project_id=project.ProjectID) }}" 
+                       class="btn btn-success"
+                       onclick="return confirm('Mark this project as completed?')">
+                        <i class="fas fa-check me-1"></i>Mark as Completed
+                    </a>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('close_project', project_id=project.ProjectID) }}" 
+                       class="btn btn-danger"
+                       onclick="return confirm('Are you sure you want to cancel this project? This action cannot be undone.')">
+                        <i class="fas fa-ban me-1"></i>Cancel Project
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.form-control, .form-select {
+    border-radius: 10px;
+}
+.card {
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}
