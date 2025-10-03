@@ -15,6 +15,13 @@ class User(UserMixin, db.Model):
     
     def get_id(self):
         return str(self.UserID)
+    
+    # Relationships
+    freelancer_profile = db.relationship('FreelancerProfile', backref='user', uselist=False, foreign_keys='FreelancerProfile.FreelancerID')
+    projects_created = db.relationship('Project', backref='client', foreign_keys='Project.ClientID')
+    bids_made = db.relationship('Bid', backref='freelancer', foreign_keys='Bid.FreelancerID')
+    reviews_given = db.relationship('Review', backref='reviewer', foreign_keys='Review.ReviewerID')
+    reviews_received = db.relationship('Review', backref='reviewee', foreign_keys='Review.RevieweeID')
 
 class FreelancerProfile(db.Model):
     __tablename__ = 'Freelancer_Profile'
@@ -32,10 +39,8 @@ class Project(db.Model):
     Budget = db.Column(db.Numeric(10, 2), nullable=False)
     Status = db.Column(db.String(20), default='open')
     CreatedAt = db.Column(db.DateTime, default=datetime.utcnow)
-    Deadline = db.Column(db.Date, nullable=True)
     
     # Relationships
-    client = db.relationship('User', foreign_keys=[ClientID])
     bids = db.relationship('Bid', backref='project', lazy=True)
     milestones = db.relationship('Milestone', backref='project', lazy=True)
 
@@ -46,12 +51,8 @@ class Bid(db.Model):
     FreelancerID = db.Column(db.Integer, db.ForeignKey('Users.UserID'), nullable=False)
     BidAmount = db.Column(db.Numeric(10, 2), nullable=False)
     CoverLetter = db.Column(db.Text)
-    DeliveryTime = db.Column(db.String(50))  # e.g., "2 weeks", "1 month"
     BidDate = db.Column(db.DateTime, default=datetime.utcnow)
     Status = db.Column(db.String(20), default='pending')  # pending, accepted, rejected
-    
-    # Relationships
-    freelancer = db.relationship('User', foreign_keys=[FreelancerID])
 
 class Milestone(db.Model):
     __tablename__ = 'Milestones'
@@ -59,9 +60,9 @@ class Milestone(db.Model):
     ProjectID = db.Column(db.Integer, db.ForeignKey('Projects.ProjectID'), nullable=False)
     Title = db.Column(db.String(150), nullable=False)
     Description = db.Column(db.Text)
-    Amount = db.Column(db.Numeric(10, 2), nullable=False)
     Status = db.Column(db.String(20), default='pending')
     DueDate = db.Column(db.Date)
+    Amount = db.Column(db.Numeric(10, 2))
 
 class Review(db.Model):
     __tablename__ = 'Reviews'
@@ -72,8 +73,3 @@ class Review(db.Model):
     Rating = db.Column(db.Integer, nullable=False)
     Comment = db.Column(db.Text)
     CreatedAt = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Relationships
-    reviewer = db.relationship('User', foreign_keys=[ReviewerID])
-    reviewee = db.relationship('User', foreign_keys=[RevieweeID])
-    project = db.relationship('Project', foreign_keys=[ProjectID])
