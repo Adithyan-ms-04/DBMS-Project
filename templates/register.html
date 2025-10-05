@@ -4,105 +4,160 @@
 
 {% block content %}
 <div class="auth-container">
-    <div class="auth-card fade-in">
+    <div class="auth-card">
         <div class="auth-header">
-            <h2><i class="fas fa-user-plus me-2"></i>Create Account</h2>
-            <p class="mb-0">Join our freelance platform</p>
+            <h2 class="text-center">Join FPRMS</h2>
+            <p class="text-center mb-0">Create your account to get started</p>
         </div>
         <div class="auth-body">
-            <form method="POST">
+            <form method="POST" action="{{ url_for('register') }}">
                 <div class="mb-3">
                     <label for="name" class="form-label">Full Name</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-user"></i></span>
-                        <input type="text" class="form-control" id="name" name="name" placeholder="Enter your full name" required>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email Address</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Create a password" required>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="role" class="form-label">I want to join as</label>
-                    <select class="form-control" id="role" name="role" required>
-                        <option value="">Select your role</option>
-                        <option value="freelancer">Freelancer</option>
-                        <option value="client">Client</option>
-                        <option value="admin">Admin</option>
-                    </select>
+                    <input type="text" class="form-control" id="name" name="name" required>
                 </div>
                 
-                <!-- Freelancer-specific fields -->
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="role" class="form-label">I want to join as:</label>
+                    <select class="form-select" id="role" name="role" required>
+                        <option value="">Select your role</option>
+                        <option value="client">Client (I want to hire freelancers)</option>
+                        <option value="freelancer">Freelancer (I want to find work)</option>
+                    </select>
+                </div>
+
+                <!-- Freelancer-specific fields (shown only when freelancer is selected) -->
                 <div id="freelancer-fields" style="display: none;">
                     <div class="mb-3">
                         <label for="skills" class="form-label">Skills</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-tools"></i></span>
-                            <input type="text" class="form-control" id="skills" name="skills" placeholder="e.g., Python, Web Development, Design">
-                        </div>
-                        <div class="form-text">Separate skills with commas</div>
+                        <input type="text" class="form-control" id="skills" name="skills" 
+                               placeholder="e.g., Python, Web Design, Graphic Design">
+                        <div class="form-text">Separate multiple skills with commas</div>
                     </div>
+                    
                     <div class="mb-3">
                         <label for="experience" class="form-label">Experience</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-briefcase"></i></span>
-                            <textarea class="form-control" id="experience" name="experience" rows="3" placeholder="Describe your experience and background"></textarea>
-                        </div>
+                        <textarea class="form-control" id="experience" name="experience" rows="3"
+                                  placeholder="Briefly describe your professional experience..."></textarea>
                     </div>
+                    
                     <div class="mb-3">
-                        <label for="portfolio_url" class="form-label">Portfolio URL</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-link"></i></span>
-                            <input type="url" class="form-control" id="portfolio_url" name="portfolio_url" placeholder="https://yourportfolio.com">
-                        </div>
+                        <label for="portfolio_url" class="form-label">Portfolio URL (Optional)</label>
+                        <input type="url" class="form-control" id="portfolio_url" name="portfolio_url"
+                               placeholder="https://yourportfolio.com">
                     </div>
+                    
                     <div class="mb-3">
-                        <label for="phone_number" class="form-label">Phone Number</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                            <input type="tel" class="form-control" id="phone_number" name="phone_number" placeholder="+1 (555) 123-4567">
-                        </div>
-                        <div class="form-text">Clients will see this after accepting your bid</div>
+                        <label for="phone_number" class="form-label">Phone Number (Optional)</label>
+                        <input type="tel" class="form-control" id="phone_number" name="phone_number"
+                               placeholder="+1 (555) 123-4567">
                     </div>
                 </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">Create Account</button>
+                </div>
                 
-                <button type="submit" class="btn btn-primary w-100 mt-3">
-                    <i class="fas fa-user-plus me-2"></i>Create Account
-                </button>
+                <div class="text-center mt-3">
+                    <p class="mb-0">Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+                </div>
             </form>
-            <div class="text-center mt-3">
-                <p class="mb-0">Already have an account? 
-                    <a href="{{ url_for('login') }}" class="text-decoration-none fw-bold">Sign in here</a>
-                </p>
-            </div>
         </div>
     </div>
 </div>
 
 <script>
-document.getElementById('role').addEventListener('change', function() {
-    var freelancerFields = document.getElementById('freelancer-fields');
-    if (this.value === 'freelancer') {
-        freelancerFields.style.display = 'block';
-        // Make freelancer fields required
-        document.getElementById('skills').required = true;
-        document.getElementById('experience').required = true;
-    } else {
-        freelancerFields.style.display = 'none';
-        // Remove required attribute for non-freelancers
-        document.getElementById('skills').required = false;
-        document.getElementById('experience').required = false;
-    }
+document.addEventListener('DOMContentLoaded', function() {
+    const roleSelect = document.getElementById('role');
+    const freelancerFields = document.getElementById('freelancer-fields');
+    
+    roleSelect.addEventListener('change', function() {
+        if (this.value === 'freelancer') {
+            freelancerFields.style.display = 'block';
+            // Make freelancer fields required
+            document.getElementById('skills').required = true;
+            document.getElementById('experience').required = true;
+        } else {
+            freelancerFields.style.display = 'none';
+            // Remove required attribute for non-freelancers
+            document.getElementById('skills').required = false;
+            document.getElementById('experience').required = false;
+        }
+    });
+    
+    // Trigger change event on page load in case there's a preserved selection
+    roleSelect.dispatchEvent(new Event('change'));
 });
 </script>
+
+<style>
+.auth-container {
+    min-height: calc(100vh - 76px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: transparent;
+}
+
+.auth-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    overflow: hidden;
+    max-width: 450px;
+    width: 100%;
+}
+
+.auth-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+.auth-body {
+    padding: 30px;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-1px);
+}
+</style>
 {% endblock %}
