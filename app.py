@@ -166,6 +166,20 @@ def client_dashboard():
                          total_bids=total_bids,
                          open_projects_count=open_projects_count,
                          in_progress_count=in_progress_count)
+@app.route('/client/projects')
+@login_required
+def client_projects():
+    """Simple project management page for clients"""
+    if current_user.Role != 'client':
+        flash('Access denied!', 'error')
+        return redirect(url_for('index'))
+    
+    # Get all projects for this client
+    projects = Project.query.filter_by(ClientID=current_user.UserID).all()
+    
+    return render_template('projects/client_projects.html', 
+                         projects=projects)
+
 
 @app.route('/dashboard/admin')
 @login_required
@@ -403,6 +417,8 @@ def accept_bid(project_id, bid_id):
     
     flash('Bid accepted! Project is now in progress.', 'success')
     return redirect(url_for('project_details', project_id=project_id))
+
+
 
 # ========================
 # MILESTONE ROUTES

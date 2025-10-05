@@ -6,15 +6,32 @@ from datetime import datetime, timedelta
 def reset_database():
     with app.app_context():
         try:
-            # Drop all tables
             print("Dropping existing tables...")
-            db.drop_all()
+            
+            # Drop tables in correct order (reverse of dependencies)
+            Review.__table__.drop(db.engine)
+            print("✅ Dropped Reviews table")
+            
+            Milestone.__table__.drop(db.engine)
+            print("✅ Dropped Milestones table")
+            
+            Bid.__table__.drop(db.engine)
+            print("✅ Dropped Bids table")
+            
+            FreelancerProfile.__table__.drop(db.engine)
+            print("✅ Dropped FreelancerProfiles table")
+            
+            Project.__table__.drop(db.engine)
+            print("✅ Dropped Projects table")
+            
+            User.__table__.drop(db.engine)
+            print("✅ Dropped Users table")
             
             # Create all tables
             print("Creating new tables...")
             db.create_all()
             
-            # Create sample data
+            # Create sample data (your existing code here)
             print("Creating sample data...")
             
             # Create users
@@ -62,7 +79,7 @@ def reset_database():
                 Skills='Python, Flask, SQL, Web Development',
                 Experience='3 years experience in web development with Flask and Django',
                 PortfolioURL='http://portfolio-bob.com',
-                PhoneNumber='+1 (555) 123-4567'  # Added phone number
+                PhoneNumber='+1 (555) 123-4567'
             )
             
             profile2 = FreelancerProfile(
@@ -70,7 +87,7 @@ def reset_database():
                 Skills='JavaScript, React, Node.js, UI/UX Design',
                 Experience='2 years experience in frontend development and design',
                 PortfolioURL='http://portfolio-eva.com',
-                PhoneNumber='+1 (555) 987-6543'  # Added phone number
+                PhoneNumber='+1 (555) 987-6543'
             )
             
             db.session.add_all([profile1, profile2])

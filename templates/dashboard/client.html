@@ -8,10 +8,12 @@
         <!-- Sidebar Column -->
         <div class="col-md-3">
             <div class="sidebar">
-                <!-- Navigation Menu -->
                 <div class="list-group">
                     <a href="{{ url_for('user_dashboard') }}" class="list-group-item list-group-item-action active">
                         <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="{{ url_for('client_projects') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tasks me-2"></i>Project Management
                     </a>
                     <a href="{{ url_for('create_project') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-plus me-2"></i>Create Project
@@ -25,71 +27,71 @@
                 </div>
 
                 <!-- Enhanced Quick Stats -->
-<div class="card mt-4 stats-card">
-    <div class="card-header bg-transparent border-bottom-0 pb-0">
-        <h6 class="card-title mb-0 text-center text-dark">
-            <i class="fas fa-chart-bar me-2"></i>Project Analytics
-        </h6>
-    </div>
-    <div class="card-body pt-0">
-        <div class="stats-grid">
-            <!-- Total Projects -->
-            <div class="stat-item primary-gradient">
-                <div class="d-flex justify-content-between align-items-center text-white">
-                    <div>
-                        <i class="fas fa-briefcase"></i>
+                <div class="card mt-4 stats-card">
+                    <div class="card-header bg-transparent border-bottom-0 pb-0">
+                        <h6 class="card-title mb-0 text-center text-dark">
+                            <i class="fas fa-chart-bar me-2"></i>Project Analytics
+                        </h6>
                     </div>
-                    <div class="text-end">
-                        <div class="fw-bold counter">{{ projects|length }}</div>
-                        <small>Total Projects</small>
-                    </div>
-                </div>
-            </div>
+                    <div class="card-body pt-0">
+                        <div class="stats-grid">
+                            <!-- Total Projects -->
+                            <div class="stat-item primary-gradient">
+                                <div class="d-flex justify-content-between align-items-center text-white">
+                                    <div>
+                                        <i class="fas fa-briefcase"></i>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold counter">{{ projects|length }}</div>
+                                        <small>Total Projects</small>
+                                    </div>
+                                </div>
+                            </div>
 
-            <!-- Active Projects -->
-            <div class="stat-item success-gradient">
-                <div class="d-flex justify-content-between align-items-center text-white">
-                    <div>
-                        <i class="fas fa-play-circle"></i>
-                    </div>
-                    <div class="text-end">
-                        <div class="fw-bold counter">{{ active_projects|length }}</div>
-                        <small>Active Projects</small>
-                    </div>
-                </div>
-            </div>
+                            <!-- Active Projects -->
+                            <div class="stat-item success-gradient">
+                                <div class="d-flex justify-content-between align-items-center text-white">
+                                    <div>
+                                        <i class="fas fa-play-circle"></i>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold counter">{{ active_projects|length }}</div>
+                                        <small>Active Projects</small>
+                                    </div>
+                                </div>
+                            </div>
 
-            <!-- Completed Projects -->
-            <div class="stat-item info-gradient">
-                <div class="d-flex justify-content-between align-items-center text-white">
-                    <div>
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="text-end">
-                        <div class="fw-bold counter">{{ completed_projects|length }}</div>
-                        <small>Completed</small>
-                    </div>
-                </div>
-            </div>
+                            <!-- Completed Projects -->
+                            <div class="stat-item info-gradient">
+                                <div class="d-flex justify-content-between align-items-center text-white">
+                                    <div>
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold counter">{{ completed_projects|length }}</div>
+                                        <small>Completed</small>
+                                    </div>
+                                </div>
+                            </div>
 
-            <!-- Total Bids -->
-            <div class="stat-item warning-gradient">
-                <div class="d-flex justify-content-between align-items-center text-white">
-                    <div>
-                        <i class="fas fa-file-invoice-dollar"></i>
-                    </div>
-                    <div class="text-end">
-                        <div class="fw-bold counter">{{ total_bids }}</div>
-                        <small>Total Bids</small>
+                            <!-- Total Bids -->
+                            <div class="stat-item warning-gradient">
+                                <div class="d-flex justify-content-between align-items-center text-white">
+                                    <div>
+                                        <i class="fas fa-file-invoice-dollar"></i>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold counter">{{ total_bids }}</div>
+                                        <small>Total Bids</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-            </div>
-        </div>
-        
+        </div>  <!-- End of sidebar column -->
+
         <!-- Main Content Column -->
         <div class="col-md-9">
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -233,9 +235,9 @@
                     {% endif %}
                 </div>
             </div>
-        </div>
-    </div>
-</div>
+        </div>  <!-- End of main content column -->
+    </div>  <!-- End of row -->
+</div>  <!-- End of container-fluid -->
 
 <style>
 .bg-gradient-primary {
