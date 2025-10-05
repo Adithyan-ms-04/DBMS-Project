@@ -43,12 +43,11 @@ def login():
             login_user(user)
             flash('Login successful!', 'success')
             
-            if user.Role == 'freelancer':
-                return redirect(url_for('freelancer_dashboard'))
-            elif user.Role == 'client':
-                return redirect(url_for('client_dashboard'))
-            else:
-                return redirect(url_for('admin_dashboard'))
+            # Redirect to user dashboard instead of individual dashboards
+            next_page = request.args.get('next')
+            if next_page:
+                return redirect(next_page)
+            return redirect(url_for('user_dashboard'))
         else:
             flash('Invalid email or password!', 'error')
     
@@ -77,7 +76,8 @@ def register():
                 FreelancerID=new_user.UserID,
                 Skills=request.form.get('skills', ''),
                 Experience=request.form.get('experience', ''),
-                PortfolioURL=request.form.get('portfolio_url', '')
+                PortfolioURL=request.form.get('portfolio_url', ''),
+                PhoneNumber=request.form.get('phone_number', '')  # Add phone number
             )
             db.session.add(freelancer_profile)
             db.session.commit()
@@ -98,6 +98,20 @@ def logout():
 # DASHBOARD ROUTES
 # ========================
 
+@app.route('/dashboard')
+@login_required
+def user_dashboard():
+    """Redirect users to their respective dashboards"""
+    if current_user.Role == 'freelancer':
+        return redirect(url_for('freelancer_dashboard'))
+    elif current_user.Role == 'client':
+        return redirect(url_for('client_dashboard'))
+    elif current_user.Role == 'admin':
+        return redirect(url_for('admin_dashboard'))
+    else:
+        flash('Unknown user role!', 'error')
+        return redirect(url_for('index'))
+
 @app.route('/dashboard/freelancer')
 @login_required
 def freelancer_dashboard():
@@ -109,9 +123,25 @@ def freelancer_dashboard():
     bids = Bid.query.filter_by(FreelancerID=current_user.UserID).all()
     open_projects = Project.query.filter_by(Status='open').all()
     
+    # Calculate stats for quick stats
+    pending_bids = [bid for bid in bids if bid.Status == 'pending']
+    accepted_bids = [bid for bid in bids if bid.Status == 'accepted']
+    rejected_bids = [bid for bid in bids if bid.Status == 'rejected']
+    
+    # Calculate success rate
+    total_bids_count = len(bids)
+    success_rate = 0
+    if total_bids_count > 0:
+        success_rate = (len(accepted_bids) / total_bids_count) * 100
+    
     return render_template('dashboard/freelancer.html', 
                          bids=bids, 
-                         open_projects=open_projects)
+                         open_projects=open_projects,
+                         pending_bids=pending_bids,
+                         accepted_bids=accepted_bids,
+                         rejected_bids=rejected_bids,
+                         total_bids_count=total_bids_count,
+                         success_rate=success_rate)
 
 @app.route('/dashboard/client')
 @login_required
@@ -124,10 +154,18 @@ def client_dashboard():
     active_projects = [p for p in projects if p.Status in ['open', 'in_progress']]
     completed_projects = [p for p in projects if p.Status == 'completed']
     
+    # Calculate additional stats
+    total_bids = sum(len(project.bids) for project in projects)
+    open_projects_count = len([p for p in projects if p.Status == 'open'])
+    in_progress_count = len([p for p in projects if p.Status == 'in_progress'])
+    
     return render_template('dashboard/client.html', 
                          projects=projects,
                          active_projects=active_projects,
-                         completed_projects=completed_projects)
+                         completed_projects=completed_projects,
+                         total_bids=total_bids,
+                         open_projects_count=open_projects_count,
+                         in_progress_count=in_progress_count)
 
 @app.route('/dashboard/admin')
 @login_required
@@ -146,6 +184,35 @@ def admin_dashboard():
                          total_projects=total_projects,
                          total_bids=total_bids,
                          recent_projects=recent_projects)
+
+
+# ========================
+# PUBLIC PROFILE ROUTES
+# ========================
+
+@app.route('/freelancer/<int:freelancer_id>')
+@login_required
+def view_freelancer_profile(freelancer_id):
+    """View freelancer profile from bids"""
+    freelancer = User.query.get_or_404(freelancer_id)
+    
+    if freelancer.Role != 'freelancer':
+        flash('User is not a freelancer!', 'error')
+        return redirect(url_for('index'))
+    
+    freelancer_profile = FreelancerProfile.query.filter_by(FreelancerID=freelancer_id).first()
+    reviews_received = Review.query.filter_by(RevieweeID=freelancer_id).all()
+    
+    # Calculate average rating
+    average_rating = 0
+    if reviews_received:
+        average_rating = sum(review.Rating for review in reviews_received) / len(reviews_received)
+    
+    return render_template('profile/freelancer_profile.html', 
+                         freelancer=freelancer,
+                         freelancer_profile=freelancer_profile,
+                         reviews_received=reviews_received,
+                         average_rating=average_rating)
 
 # ========================
 # PROJECT ROUTES
@@ -429,6 +496,7 @@ def edit_profile():
             freelancer_profile.Skills = request.form['skills']
             freelancer_profile.Experience = request.form['experience']
             freelancer_profile.PortfolioURL = request.form['portfolio_url']
+            freelancer_profile.PhoneNumber = request.form['phone_number']  # Update phone number
         
         db.session.commit()
         flash('Profile updated successfully!', 'success')

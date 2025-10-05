@@ -15,21 +15,46 @@
                 <i class="fas fa-rocket me-2"></i>FPRMS
             </a>
             
-            {% if current_user.is_authenticated %}
-            <div class="navbar-nav ms-auto">
-                <span class="navbar-text me-3 d-none d-md-block">
-                    <i class="fas fa-user me-1"></i> {{ current_user.Name }} ({{ current_user.Role.title() }})
-                </span>
-                <a class="btn btn-outline-light btn-sm" href="{{ url_for('logout') }}">
-                    <i class="fas fa-sign-out-alt me-1"></i>Logout
-                </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                {% if current_user.is_authenticated %}
+                <ul class="navbar-nav ms-auto">
+                    <!-- Home/Dashboard Button -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('user_dashboard') }}" title="Go to Dashboard">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    
+                    <!-- User Info -->
+                    <li class="nav-item">
+                        <span class="nav-link text-light">
+                            <i class="fas fa-user me-1"></i> 
+                            {{ current_user.Name }} ({{ current_user.Role.title() }})
+                        </span>
+                    </li>
+                    
+                    <!-- Logout Button -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </a>
+                    </li>
+                </ul>
+                {% else %}
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+                    </li>
+                </ul>
+                {% endif %}
             </div>
-            {% else %}
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-                <a class="nav-link" href="{{ url_for('register') }}">Register</a>
-            </div>
-            {% endif %}
         </div>
     </nav>
 

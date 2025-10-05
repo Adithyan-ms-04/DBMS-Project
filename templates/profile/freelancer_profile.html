@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}{{ freelancer.Name }} - Freelancer Profile - FPRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <!-- Back Button -->
+            <div class="mb-4">
+                <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Bids
+                </a>
+            </div>
+
+            <!-- Profile Header -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 text-center">
+                            <div class="avatar-circle bg-gradient-primary mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                                {{ freelancer.Name[0]|upper }}
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <h2 class="card-title mb-1">{{ freelancer.Name }}</h2>
+                            <p class="text-muted mb-2">
+                                <i class="fas fa-user-tag me-2"></i>
+                                Professional Freelancer
+                            </p>
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-envelope me-2"></i>
+                                {{ freelancer.Email }}
+                            </p>
+                            {% if freelancer_profile and freelancer_profile.PhoneNumber %}
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-phone me-2"></i>
+                                {{ freelancer_profile.PhoneNumber }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-2 text-center">
+                            {% if reviews_received %}
+                            <div class="rating-display">
+                                <div class="display-4 text-warning mb-0">{{ "%.1f"|format(average_rating) }}</div>
+                                <small class="text-muted">
+                                    {% for i in range(5) %}
+                                        <i class="fas fa-star{% if i < average_rating|int %}{% else %}-o{% endif %} text-warning"></i>
+                                    {% endfor %}
+                                </small>
+                                <div class="text-muted small">({{ reviews_received|length }} reviews)</div>
+                            </div>
+                            {% else %}
+                            <div class="text-muted">
+                                <small>No reviews yet</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skills & Experience -->
+            <div class="row">
+                <!-- Skills -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-tools me-2"></i>Skills & Expertise
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if freelancer_profile and freelancer_profile.Skills %}
+                                <div class="skills-container">
+                                    {% for skill in freelancer_profile.Skills.split(',') %}
+                                        <span class="badge bg-primary me-2 mb-2">{{ skill.strip() }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No skills listed yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Experience -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-briefcase me-2"></i>Experience
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if freelancer_profile and freelancer_profile.Experience %}
+                                <p class="card-text">{{ freelancer_profile.Experience }}</p>
+                            {% else %}
+                                <p class="text-muted">No experience information provided.</p>
+                            {% endif %}
+                            
+                            {% if freelancer_profile and freelancer_profile.PortfolioURL %}
+                                <div class="mt-3">
+                                    <a href="{{ freelancer_profile.PortfolioURL }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-external-link-alt me-1"></i>View Portfolio
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            {% if reviews_received %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-star me-2"></i>Client Reviews ({{ reviews_received|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for review in reviews_received %}
+                    <div class="border-bottom pb-3 mb-3 {% if not loop.last %}border-bottom{% endif %}">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">{{ review.reviewer.Name }}</h6>
+                            <div class="text-warning">
+                                {% for i in range(5) %}
+                                    <i class="fas fa-star{% if i < review.Rating %}{% else %}-o{% endif %}"></i>
+                                {% endfor %}
+                                <span class="ms-2 text-muted">{{ review.Rating }}/5</span>
+                            </div>
+                        </div>
+                        <p class="text-muted mb-2">{{ review.Comment }}</p>
+                        <small class="text-muted">{{ review.CreatedAt.strftime('%B %d, %Y') }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: white;
+    font-weight: bold;
+}
+
+.skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.rating-display {
+    text-align: center;
+}
+
+.badge {
+    font-size: 0.8rem;
+    padding: 8px 12px;
+    border-radius: 20px;
+}
+</style>
+{% endblock %}
