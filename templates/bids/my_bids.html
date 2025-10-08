@@ -3,85 +3,48 @@
 {% block title %}My Bids - FPRMS{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-3">
-            <div class="sidebar">
-                <div class="list-group">
-                    <a href="{{ url_for('freelancer_dashboard') }}" class="list-group-item list-group-item-action">Dashboard</a>
-                    <a href="{{ url_for('view_projects') }}" class="list-group-item list-group-item-action">Browse Projects</a>
-                    <a href="{{ url_for('my_bids') }}" class="list-group-item list-group-item-action active">My Bids</a>
-                    <a href="{{ url_for('view_profile') }}" class="list-group-item list-group-item-action">My Profile</a>
-                </div>
-            </div>
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h2 class="mb-0">My Bidding History</h2>
+            <p class="text-muted">Here is a list of all the projects you have bid on.</p>
         </div>
-        
-        <div class="col-md-9">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>My Bids</h2>
-                <a href="{{ url_for('view_projects') }}" class="btn btn-primary">
-                    <i class="fas fa-plus me-1"></i>Find New Projects
-                </a>
-            </div>
-            
+        <div class="card-body">
             {% if bids %}
-                <div class="row">
+                <div class="list-group">
                     {% for bid in bids %}
-                    <div class="col-md-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0">{{ bid.project.Title }}</h5>
-                                <span class="badge bg-{{ 'success' if bid.Status == 'accepted' else 'warning' if bid.Status == 'pending' else 'danger' }}">
-                                    {{ bid.Status|title }}
-                                </span>
+                        <div class="list-group-item list-group-item-action flex-column align-items-start mb-3 border rounded">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">
+                                    <a href="{{ url_for('project_details', project_id=bid.ProjectID) }}" class="text-decoration-none">
+                                        {{ bid.project.Title }}
+                                    </a>
+                                </h5>
+                                <small class="text-muted">{{ bid.BidDate.strftime('%Y-%m-%d') }}</small>
                             </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <strong>Client:</strong> {{ bid.project.client.Name }}<br>
-                                    <strong>My Bid:</strong> ${{ bid.BidAmount }}<br>
-                                    <strong>Project Budget:</strong> ${{ bid.project.Budget }}<br>
-                                    <strong>Submitted:</strong> {{ bid.BidDate.strftime('%Y-%m-%d') }}
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <strong>Cover Letter:</strong>
-                                    <p class="mt-1 text-muted">{{ bid.CoverLetter[:150] }}{% if bid.CoverLetter|length > 150 %}...{% endif %}</p>
-                                </div>
-                                
+                            <p class="mb-1">
+                                <strong>Your Bid:</strong> ${{ bid.BidAmount }}
+                            </p>
+                            <p>
+                                <strong>Status:</strong> 
                                 {% if bid.Status == 'accepted' %}
-                                <div class="alert alert-success mb-3">
-                                    <i class="fas fa-check-circle me-2"></i>
-                                    <strong>Congratulations!</strong> Your bid has been accepted.
-                                </div>
+                                    <span class="badge bg-success">Accepted</span>
+                                {% elif bid.Status == 'rejected' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
                                 {% endif %}
-                            </div>
-                            <div class="card-footer">
-                                <div class="d-flex gap-2">
-                                    <a href="{{ url_for('project_details', project_id=bid.ProjectID) }}" class="btn btn-primary btn-sm">
-                                        <i class="fas fa-eye me-1"></i>View Project
-                                    </a>
-                                    {% if bid.Status == 'pending' %}
-                                    <a href="{{ url_for('withdraw_bid', bid_id=bid.BidID) }}" class="btn btn-danger btn-sm" 
-                                       onclick="return confirm('Are you sure you want to withdraw this bid?')">
-                                        <i class="fas fa-times me-1"></i>Withdraw
-                                    </a>
-                                    {% endif %}
-                                </div>
-                            </div>
+                            </p>
+                            <small class="text-muted fst-italic">"{{ bid.CoverLetter|truncate(150) }}"</small>
                         </div>
-                    </div>
                     {% endfor %}
                 </div>
             {% else %}
-                <div class="text-center py-5">
-                    <div class="mb-4">
-                        <i class="fas fa-file-invoice-dollar fa-4x text-muted"></i>
-                    </div>
-                    <h3 class="text-muted">No Bids Yet</h3>
-                    <p class="text-muted mb-4">You haven't placed any bids yet. Start browsing projects to find opportunities that match your skills!</p>
-                    <a href="{{ url_for('view_projects') }}" class="btn btn-primary btn-lg">
-                        <i class="fas fa-search me-2"></i>Browse Projects
-                    </a>
+                <div class="text-center p-4">
+                    
+                    <h4>You haven't placed any bids yet.</h4>
+                    <p>Why not browse the available projects and find one that matches your skills?</p>
+                    <a href="{{ url_for('view_projects') }}" class="btn btn-primary">Browse Projects</a>
                 </div>
             {% endif %}
         </div>
