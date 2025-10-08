@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}My Projects - FPRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="sidebar">
+                <div class="list-group">
+                    <a href="{{ url_for('user_dashboard') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="{{ url_for('client_projects') }}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-tasks me-2"></i>Project Management
+                    </a>
+                    <a href="{{ url_for('create_project') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-plus me-2"></i>Create Project
+                    </a>
+                    <a href="{{ url_for('view_projects') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-search me-2"></i>Browse Projects
+                    </a>
+                    <a href="{{ url_for('view_profile') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user me-2"></i>My Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>My Projects</h2>
+                <a href="{{ url_for('create_project') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Create New Project
+                </a>
+            </div>
+
+            {% if projects %}
+            <div class="row">
+                {% for project in projects %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">{{ project.Title }}</h5>
+                            <span class="badge bg-{{ 'success' if project.Status == 'open' else 'warning' if project.Status == 'in_progress' else 'info' }}">
+                                {{ project.Status|replace('_', ' ')|title }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ project.Description[:150] }}...</p>
+                            <div class="mb-3">
+                                <strong>Budget:</strong> ${{ project.Budget }}<br>
+                                <strong>Bids:</strong> {{ project.bids|length }}<br>
+                                <strong>Created:</strong> {{ project.CreatedAt.strftime('%b %d, %Y') }}
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{{ url_for('project_details', project_id=project.ProjectID) }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-eye me-1"></i>View Details
+                            </a>
+                            {% if project.Status == 'open' %}
+                            <a href="{{ url_for('edit_project', project_id=project.ProjectID) }}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit me-1"></i>Edit
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No Projects Yet</h5>
+                <p class="text-muted">Create your first project to get started!</p>
+                <a href="{{ url_for('create_project') }}" class="btn btn-primary">Create Project</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

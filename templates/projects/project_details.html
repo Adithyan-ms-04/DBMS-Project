@@ -3,74 +3,65 @@
 {% block title %}{{ project.Title }} - FPRMS{% endblock %}
 
 {% block content %}
-<div class="row">
-    <!-- Project Details -->
-    <div class="col-md-8">
-        <div class="card mb-4">
-            <div class="card-header bg-primary text-white">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h4 class="card-title mb-0">{{ project.Title }}</h4>
-                    <span class="badge bg-{{ 'success' if project.Status == 'open' else 'warning' if project.Status == 'in_progress' else 'info' }} p-2">
-                        {{ project.Status|replace('_', ' ')|title }}
-                    </span>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <strong><i class="fas fa-user me-2"></i>Client:</strong>
-                        <p class="mb-2">{{ project.client.Name }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <strong><i class="fas fa-dollar-sign me-2"></i>Budget:</strong>
-                        <p class="mb-2">${{ project.Budget }}</p>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Project Details -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0">{{ project.Title }}</h4>
+                        <span class="badge bg-{{ 'success' if project.Status == 'open' else 'warning' if project.Status == 'in_progress' else 'info' }} p-2">
+                            {{ project.Status|replace('_', ' ')|title }}
+                        </span>
                     </div>
                 </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <strong><i class="fas fa-user me-2"></i>Client:</strong>
+                            <p class="mb-2">
+                                {% if project.client %}
+                                    {{ project.client.Name }}
+                                {% else %}
+                                    Client information not available
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong><i class="fas fa-dollar-sign me-2"></i>Budget:</strong>
+                            <p class="mb-2">${{ project.Budget }}</p>
+                        </div>
+                    </div>
 
                 <div class="mb-4">
                     <strong><i class="fas fa-align-left me-2"></i>Description:</strong>
                     <p class="mt-2">{{ project.Description }}</p>
                 </div>
 
-                {% if milestones %}
-                <div class="mb-3">
-                    <label class="fw-bold mb-2"><i class="fas fa-tasks me-2"></i>Project Progress</label>
-                    <div class="progress" style="height: 25px;">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ progress }}%" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100">
-                            <strong>{{ progress }}%</strong>
+                    <div class="row text-muted">
+                        <div class="col-md-6">
+                            <small><i class="fas fa-calendar me-1"></i> Posted: {{ project.CreatedAt.strftime('%B %d, %Y') }}</small>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <small>Project ID: #{{ project.ProjectID }}</small>
                         </div>
                     </div>
                 </div>
-                {% endif %}
-
-                <div class="row text-muted">
-                    <div class="col-md-6">
-                        <small><i class="fas fa-calendar me-1"></i> Posted: {{ project.CreatedAt.strftime('%B %d, %Y') }}</small>
-                    </div>
-                    <div class="col-md-6 text-end">
-                        <small>Project ID: #{{ project.ProjectID }}</small>
-                    </div>
-                </div>
             </div>
-        </div>
 
         <!-- Milestones Section -->
         {% if milestones %}
         <div class="card mb-4">
             <div class="card-header">
-                <h5 class="card-title mb-0"><i class="fas fa-flag-checkered me-2"></i>Project Milestones</h5>
+                <h5 class="card-title mb-0">Project Milestones</h5>
             </div>
             <div class="card-body">
                 {% for milestone in milestones %}
-                <div class="border-bottom pb-3 mb-3 {% if milestone.MilestoneID == next_completable_milestone_id %}bg-light{% endif %}">
+                <div class="border-bottom pb-3 mb-3">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <h6 class="mb-1">
-                                {% if milestone.MilestoneID == next_completable_milestone_id and milestone.Status != 'completed' %}
-                                <i class="fas fa-arrow-right text-warning me-1"></i>
-                                {% endif %}
-                                {{ loop.index }}. {{ milestone.Title }}
-                            </h6>
+                            <h6 class="mb-1">{{ milestone.Title }}</h6>
                             <p class="text-muted small mb-2">{{ milestone.Description }}</p>
                         </div>
                         <span class="badge bg-{{ 'success' if milestone.Status == 'completed' else 'warning' if milestone.Status == 'in_progress' else 'secondary' }}">
@@ -85,32 +76,6 @@
                         <strong class="text-primary">${{ milestone.Amount }}</strong>
                         {% endif %}
                     </div>
-                    {% if can_update_milestones and milestone.Status != 'completed' %}
-                        {% if milestone.MilestoneID == next_completable_milestone_id %}
-                        <form method="POST" action="{{ url_for('complete_milestone', milestone_id=milestone.MilestoneID) }}" class="mt-2">
-                            {% if current_user.Role == 'freelancer' %}
-                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Mark this milestone as completed?')">
-                                <i class="fas fa-check-circle me-1"></i>Mark Complete
-                            </button>
-                            {% else %}
-                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Mark this milestone as completed?')">
-                                <i class="fas fa-check-circle me-1"></i>Complete
-                            </button>
-                            {% endif %}
-                        </form>
-                        {% else %}
-                        <div class="mt-2">
-                            <button type="button" class="btn btn-sm btn-secondary" disabled title="Complete previous milestones first">
-                                <i class="fas fa-lock me-1"></i>Locked
-                            </button>
-                            <small class="text-muted d-block mt-1">Complete previous milestones first</small>
-                        </div>
-                        {% endif %}
-                    {% elif milestone.Status == 'completed' %}
-                    <div class="mt-2">
-                        <span class="badge bg-success"><i class="fas fa-check me-1"></i>Completed</span>
-                    </div>
-                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
@@ -150,257 +115,369 @@
     
     <!-- Sidebar -->
     <div class="col-md-4">
-        <!-- Create Milestones (for clients) -->
-        {% if current_user.UserID == project.ClientID %}
-        <div class="card mb-4">
-            <div class="card-header bg-info text-white">
-                <h5 class="card-title mb-0"><i class="fas fa-plus-circle me-2"></i>Create Milestones</h5>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('create_milestones', project_id=project.ProjectID) }}" id="milestonesForm">
-                    <div id="milestonesContainer">
-                        <div class="milestone-item border rounded p-3 mb-3" data-index="0">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <strong>Milestone 1</strong>
-                                <button type="button" class="btn btn-sm btn-danger remove-milestone" style="display:none;">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label">Title</label>
-                                <input type="text" name="milestones[0][title]" class="form-control" required>
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label">Description</label>
-                                <textarea name="milestones[0][description]" class="form-control" rows="2"></textarea>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-2">
-                                    <label class="form-label">Due Date</label>
-                                    <input type="date" name="milestones[0][due_date]" class="form-control" required>
-                                </div>
-                                <div class="col-md-6 mb-2">
-                                    <label class="form-label">Amount ($)</label>
-                                    <input type="number" step="0.01" min="0" name="milestones[0][amount]" class="form-control">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-sm btn-outline-info w-100 mb-2" id="addMilestoneBtn">
-                        <i class="fas fa-plus me-1"></i>Add Another Milestone
-                    </button>
-                    <button type="submit" class="btn btn-info w-100 text-white">
-                        <i class="fas fa-save me-1"></i>Save All Milestones
-                    </button>
-                </form>
-            </div>
-        </div>
-        
-        <script>
-        let milestoneCount = 1;
-        
-        document.getElementById('addMilestoneBtn').addEventListener('click', function() {
-            const container = document.getElementById('milestonesContainer');
-            const newMilestone = document.createElement('div');
-            newMilestone.className = 'milestone-item border rounded p-3 mb-3';
-            newMilestone.setAttribute('data-index', milestoneCount);
-            newMilestone.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <strong>Milestone ${milestoneCount + 1}</strong>
-                    <button type="button" class="btn btn-sm btn-danger remove-milestone">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="mb-2">
-                    <label class="form-label">Title</label>
-                    <input type="text" name="milestones[${milestoneCount}][title]" class="form-control" required>
-                </div>
-                <div class="mb-2">
-                    <label class="form-label">Description</label>
-                    <textarea name="milestones[${milestoneCount}][description]" class="form-control" rows="2"></textarea>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-2">
-                        <label class="form-label">Due Date</label>
-                        <input type="date" name="milestones[${milestoneCount}][due_date]" class="form-control" required>
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <label class="form-label">Amount ($)</label>
-                        <input type="number" step="0.01" min="0" name="milestones[${milestoneCount}][amount]" class="form-control">
-                    </div>
-                </div>
-            `;
-            container.appendChild(newMilestone);
-            milestoneCount++;
-            updateRemoveButtons();
-        });
-        
-        document.getElementById('milestonesContainer').addEventListener('click', function(e) {
-            if (e.target.closest('.remove-milestone')) {
-                e.target.closest('.milestone-item').remove();
-                updateRemoveButtons();
-            }
-        });
-        
-        function updateRemoveButtons() {
-            const items = document.querySelectorAll('.milestone-item');
-            items.forEach((item, index) => {
-                const removeBtn = item.querySelector('.remove-milestone');
-                if (items.length > 1) {
-                    removeBtn.style.display = 'block';
-                } else {
-                    removeBtn.style.display = 'none';
-                }
-            });
-        }
-        </script>
-        {% endif %}
-
         <!-- Bid Placement (for freelancers) -->
-        {% if current_user.Role == 'freelancer' and project.Status == 'open' %}
-        <div class="card mb-4">
-            <div class="card-header bg-success text-white">
-                <h5 class="card-title mb-0">Place Your Bid</h5>
+        <!-- In the project details template, update the bid placement section -->
+{% if current_user.Role == 'freelancer' and project.Status == 'open' %}
+<div class="card mb-4">
+    <div class="card-header bg-success text-white">
+        <h5 class="card-title mb-0">Place Your Bid</h5>
+    </div>
+    <div class="card-body">
+        {% if user_bid %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>You've already placed a bid on this project.</strong>
+                <p class="mb-0 mt-1">Your bid: ${{ user_bid.BidAmount }}</p>
+                <p class="mb-0">Status: <span class="badge bg-{{ 'success' if user_bid.Status == 'accepted' else 'warning' }}">{{ user_bid.Status }}</span></p>
             </div>
-            <div class="card-body">
-                {% if user_bid %}
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>You've already placed a bid on this project.</strong>
-                        <p class="mb-0 mt-1">Your bid: ${{ user_bid.BidAmount }}</p>
-                        <p class="mb-0">Status: <span class="badge bg-{{ 'success' if user_bid.Status == 'accepted' else 'warning' }}">{{ user_bid.Status }}</span></p>
-                    </div>
-                {% else %}
-                    <form method="POST" action="{{ url_for('place_bid', project_id=project.ProjectID) }}">
-                        <div class="mb-3">
-                            <label for="bid_amount" class="form-label fw-bold">Your Bid Amount ($)</label>
-                            <input type="number" class="form-control" id="bid_amount" name="bid_amount" 
-                                   step="0.01" min="1" max="{{ project.Budget * 2 }}" required
-                                   placeholder="Enter your bid amount">
-                            <div class="form-text">Project budget: ${{ project.Budget }}</div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="cover_letter" class="form-label fw-bold">Cover Letter</label>
-                            <textarea class="form-control" id="cover_letter" name="cover_letter" 
-                                      rows="4" required placeholder="Why are you the best fit for this project?"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-success w-100">
-                            <i class="fas fa-paper-plane me-1"></i>Submit Bid
-                        </button>
-                    </form>
-                {% endif %}
-            </div>
-        </div>
+        {% else %}
+            <form method="POST" action="{{ url_for('place_bid', project_id=project.ProjectID) }}">
+                <div class="mb-3">
+                    <label for="bid_amount" class="form-label fw-bold">Your Bid Amount ($)</label>
+                    <input type="number" class="form-control" id="bid_amount" name="bid_amount" 
+                           step="0.01" min="1" max="{{ project.Budget * 2 }}" required
+                           placeholder="Enter your bid amount">
+                    <div class="form-text">Project budget: ${{ project.Budget }}</div>
+                </div>
+                <div class="mb-3">
+                    <label for="cover_letter" class="form-label fw-bold">Cover Letter</label>
+                    <textarea class="form-control" id="cover_letter" name="cover_letter" 
+                              rows="4" required placeholder="Why are you the best fit for this project?"></textarea>
+                </div>
+                <button type="submit" class="btn btn-success w-100">
+                    <i class="fas fa-paper-plane me-1"></i>Submit Bid
+                </button>
+            </form>
         {% endif %}
+    </div>
+</div>
+{% endif %}
 
-        <!-- Bids Overview -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    Bids ({{ bids|length }})
+            <!-- Bids Overview -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        Bids ({{ bids|length }})
+                        {% if bids %}
+                        <small class="text-muted">Avg: ${{ "%.2f"|format(bids|sum(attribute='BidAmount') / bids|length) }}</small>
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
                     {% if bids %}
-                    <small class="text-muted">Avg: ${{ "%.2f"|format(bids|sum(attribute='BidAmount') / bids|length) }}</small>
+                        {% for bid in bids %}
+                        <div class="border-bottom pb-2 mb-2">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <div>
+                                    <strong>
+                                        {% if bid.freelancer %}
+                                            {{ bid.freelancer.Name }}
+                                        {% else %}
+                                            Unknown Freelancer
+                                        {% endif %}
+                                    </strong>
+                                    {% if bid.freelancer %}
+                                    <a href="{{ url_for('view_freelancer_profile', freelancer_id=bid.FreelancerID) }}" 
+   class="btn btn-sm btn-outline-info ms-2"
+   title="View Freelancer Profile">
+    <i class="fas fa-eye"></i> View Profile
+</a>
+                                    {% endif %}
+                                </div>
+                                <span class="badge bg-{{ 'success' if bid.Status == 'accepted' else 'warning' if bid.Status == 'pending' else 'secondary' }}">
+                                    {{ bid.Status }}
+                                </span>
+                            </div>
+                            <p class="mb-1 text-primary fw-bold">${{ bid.BidAmount }}</p>
+                            <p class="small text-muted mb-2">{{ bid.CoverLetter[:80] }}...</p>
+                            <small class="text-muted">{{ bid.BidDate.strftime('%b %d, %Y') }}</small>
+                            
+                            <!-- Accept Bid Button (for client) -->
+                            {% if current_user.UserID == project.ClientID and project.Status == 'open' and bid.Status == 'pending' %}
+                            <div class="mt-2">
+                                <a href="{{ url_for('accept_bid', project_id=project.ProjectID, bid_id=bid.BidID) }}" 
+                                   class="btn btn-success btn-sm"
+                                   onclick="return confirm('Are you sure you want to accept this bid?')">
+                                    <i class="fas fa-check me-1"></i>Accept Bid
+                                </a>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Review Button (for client after project completion) -->
+                            {% if current_user.UserID == project.ClientID and project.Status == 'completed' and bid.Status == 'accepted' and bid.freelancer %}
+                            <div class="mt-2">
+                            
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center py-3">
+                            <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                            No bids yet
+                        </p>
                     {% endif %}
-                </h5>
+                </div>
             </div>
-            <div class="card-body">
-                {% if bids %}
-                    {% for bid in bids %}
-                    <div class="border-bottom pb-2 mb-2">
-                        <div class="d-flex justify-content-between align-items-start mb-1">
-                            <strong>{{ bid.freelancer.Name }}</strong>
-                            <span class="badge bg-{{ 'success' if bid.Status == 'accepted' else 'warning' if bid.Status == 'pending' else 'secondary' }}">
-                                {{ bid.Status }}
-                            </span>
-                        </div>
-                        <p class="mb-1 text-primary fw-bold">${{ bid.BidAmount }}</p>
-                        <p class="small text-muted mb-2">{{ bid.CoverLetter[:80] }}...</p>
-                        <small class="text-muted">{{ bid.BidDate.strftime('%b %d, %Y') }}</small>
+
+            <!-- Contact Freelancer Section -->
+{% if current_user.UserID == project.ClientID %}
+    {% set accepted_bid = bids|selectattr('Status', 'equalto', 'accepted')|first %}
+    {% if accepted_bid and accepted_bid.freelancer %}
+    <div class="card mt-4 border-success">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Contact Freelancer</h5>
+            <span class="badge bg-light text-dark">Accepted Bid</span>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <h6>{{ accepted_bid.freelancer.Name }}</h6>
+                    <p class="mb-1"><strong>Email:</strong> {{ accepted_bid.freelancer.Email }}</p>
+                    
+                    {% if accepted_bid.freelancer.freelancer_profile %}
+                        {% if accepted_bid.freelancer.freelancer_profile.PhoneNumber %}
+                        <p class="mb-1"><strong>Phone:</strong> {{ accepted_bid.freelancer.freelancer_profile.PhoneNumber }}</p>
+                        {% else %}
+                        <p class="mb-1 text-muted"><strong>Phone:</strong> Not provided</p>
+                        {% endif %}
                         
-                        <!-- Accept Bid Button (for client) -->
-                        {% if current_user.UserID == project.ClientID and project.Status == 'open' and bid.Status == 'pending' %}
-                        <div class="mt-2">
-                            <a href="{{ url_for('accept_bid', project_id=project.ProjectID, bid_id=bid.BidID) }}" 
-                               class="btn btn-success btn-sm w-100"
-                               onclick="return confirm('Are you sure you want to accept this bid from {{ bid.freelancer.Name }}?')">
-                                <i class="fas fa-check me-1"></i>Accept Bid
-                            </a>
-                        </div>
+                        {% if accepted_bid.freelancer.freelancer_profile.Skills %}
+                        <p class="mb-1"><strong>Skills:</strong> {{ accepted_bid.freelancer.freelancer_profile.Skills|truncate(100) }}</p>
+                        {% endif %}
+                    {% endif %}
+                    
+                    <p class="mb-1"><strong>Bid Amount:</strong> ${{ accepted_bid.BidAmount }}</p>
+                    <p class="mb-1"><strong>Cover Letter:</strong> {{ accepted_bid.CoverLetter|truncate(150) }}</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('view_freelancer_profile', freelancer_id=accepted_bid.FreelancerID) }}" 
+                           class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-user me-1"></i>View Full Profile
+                        </a>
+                        
+                        {% if accepted_bid.freelancer.freelancer_profile and accepted_bid.freelancer.freelancer_profile.PortfolioURL %}
+                        <a href="{{ accepted_bid.freelancer.freelancer_profile.PortfolioURL }}" 
+                           target="_blank" 
+                           class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-external-link-alt me-1"></i>Portfolio
+                        </a>
+                        {% endif %}
+                        
+                        {% if project.Status == 'completed' %}
+                        <button class="btn btn-outline-warning btn-sm" 
+                                onclick="openReviewModal({{ accepted_bid.FreelancerID }})">
+                            <i class="fas fa-star me-1"></i>Leave Review
+                        </button>
                         {% endif %}
                     </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="text-muted text-center py-3">
-                        <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-                        No bids yet
-                    </p>
-                {% endif %}
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="mt-3 pt-3 border-top">
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="mailto:{{ accepted_bid.freelancer.Email }}" class="btn btn-success btn-sm">
+                        <i class="fas fa-envelope me-1"></i>Send Email
+                    </a>
+                    
+                    {% if accepted_bid.freelancer.freelancer_profile and accepted_bid.freelancer.freelancer_profile.PhoneNumber %}
+                    <a href="tel:{{ accepted_bid.freelancer.freelancer_profile.PhoneNumber }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-phone me-1"></i>Call Now
+                    </a>
+                    
+                    <button class="btn btn-outline-secondary btn-sm" 
+                            onclick="copyToClipboard('{{ accepted_bid.freelancer.freelancer_profile.PhoneNumber }}')">
+                        <i class="fas fa-copy me-1"></i>Copy Phone
+                    </button>
+                    {% endif %}
+                </div>
             </div>
         </div>
+    </div>
+    {% endif %}
+{% endif %}
 
-        <!-- Project Info Card -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Project Information</h5>
-            </div>
-            <div class="card-body">
-                <div class="mb-2">
-                    <strong>Status:</strong>
-                    <span class="badge bg-{{ 'success' if project.Status == 'open' else 'warning' if project.Status == 'in_progress' else 'info' }} float-end">
-                        {{ project.Status|replace('_', ' ')|title }}
-                    </span>
+            <!-- Project Info Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Project Information</h5>
                 </div>
-                <div class="mb-2">
-                    <strong>Budget:</strong>
-                    <span class="float-end">${{ project.Budget }}</span>
-                </div>
-                <div class="mb-2">
-                    <strong>Bids Received:</strong>
-                    <span class="float-end">{{ bids|length }}</span>
-                </div>
-                <div class="mb-2">
-                    <strong>Posted:</strong>
-                    <span class="float-end">{{ project.CreatedAt.strftime('%b %d, %Y') }}</span>
-                </div>
-                <div>
-                    <strong>Client:</strong>
-                    <span class="float-end">{{ project.client.Name }}</span>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <strong>Status:</strong>
+                        <span class="badge bg-{{ 'success' if project.Status == 'open' else 'warning' if project.Status == 'in_progress' else 'info' }} float-end">
+                            {{ project.Status|replace('_', ' ')|title }}
+                        </span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Budget:</strong>
+                        <span class="float-end">${{ project.Budget }}</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Bids Received:</strong>
+                        <span class="float-end">{{ bids|length }}</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Posted:</strong>
+                        <span class="float-end">{{ project.CreatedAt.strftime('%b %d, %Y') }}</span>
+                    </div>
+                    <div>
+                        <strong>Client:</strong>
+                        <span class="float-end">
+                            {% if project.client %}
+                                {{ project.client.Name }}
+                            {% else %}
+                                Unknown
+                            {% endif %}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Accept Bid Modal -->
-<div class="modal fade" id="acceptBidModal" tabindex="-1">
+<!-- Add Progress Update Modal -->
+{% if current_user.Role == 'freelancer' and milestones %}
+<div class="modal fade" id="addProgressModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Accept a Bid</h5>
+                <h5 class="modal-title">Add Progress Update</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>Select a freelancer to work on this project:</p>
-                {% for bid in bids if bid.Status == 'pending' %}
-                <div class="border p-3 mb-2 rounded">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>{{ bid.freelancer.Name }}</strong>
-                            <br>
-                            <span class="text-primary">${{ bid.BidAmount }}</span>
-                        </div>
-                        <a href="{{ url_for('accept_bid', project_id=project.ProjectID, bid_id=bid.BidID) }}" 
-                           class="btn btn-success btn-sm"
-                           onclick="return confirm('Accept {{ bid.freelancer.Name }}\'s bid of ${{ bid.BidAmount }}?')">
-                            Select
-                        </a>
+                <form method="POST" action="{{ url_for('update_milestone_progress', milestone_id=milestones[0].MilestoneID) }}" id="progressForm">
+                    <div class="mb-3">
+                        <label for="milestone_select" class="form-label">Select Milestone</label>
+                        <select class="form-select" id="milestone_select" required>
+                            {% for milestone in milestones %}
+                            <option value="{{ milestone.MilestoneID }}">{{ milestone.Title }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
-                </div>
-                {% endfor %}
+                    <div class="mb-3">
+                        <label for="progress_update" class="form-label">Progress Update</label>
+                        <textarea class="form-control" id="progress_update" name="progress_update" rows="4" required placeholder="Describe your progress on this milestone..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Submit Progress Update</button>
+                </form>
             </div>
         </div>
     </div>
 </div>
+{% endif %}
+
+<!-- Freelancer Info Modal -->
+<div class="modal fade" id="freelancerInfoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Freelancer Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="freelancerInfoContent">
+                <!-- Content will be loaded via JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Review Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Submit Review</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('submit_review', project_id=project.ProjectID) }}">
+                    <input type="hidden" name="reviewee_id" id="reviewee_id">
+                    <div class="mb-3">
+                        <label for="rating" class="form-label">Rating</label>
+                        <select class="form-select" id="rating" name="rating" required>
+                            <option value="">Select Rating</option>
+                            <option value="5">★★★★★ - Excellent</option>
+                            <option value="4">★★★★☆ - Very Good</option>
+                            <option value="3">★★★☆☆ - Good</option>
+                            <option value="2">★★☆☆☆ - Fair</option>
+                            <option value="1">★☆☆☆☆ - Poor</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="comment" class="form-label">Review Comment</label>
+                        <textarea class="form-control" id="comment" name="comment" rows="4" required placeholder="Share your experience working with this freelancer..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Submit Review</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// View freelancer profile
+function viewFreelancerProfile(freelancerId) {
+    fetch(`/api/freelancer/${freelancerId}`)
+        .then(response => response.json())
+        .then(data => {
+            const modalContent = document.getElementById('freelancerInfoContent');
+            modalContent.innerHTML = `
+                <div class="row">
+                    <div class="col-md-12">
+                        <h4>${data.name}</h4>
+                        <p><strong>Email:</strong> ${data.email}</p>
+                        <p><strong>Skills:</strong> ${data.skills}</p>
+                        <p><strong>Experience:</strong> ${data.experience}</p>
+                        ${data.phone_number ? `<p><strong>Phone:</strong> ${data.phone_number}</p>` : ''}
+                        ${data.portfolio ? `<p><strong>Portfolio:</strong> <a href="${data.portfolio}" target="_blank">${data.portfolio}</a></p>` : ''}
+                        <p><strong>Member since:</strong> ${data.member_since}</p>
+                    </div>
+                </div>
+            `;
+            new bootstrap.Modal(document.getElementById('freelancerInfoModal')).show();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading freelancer profile');
+        });
+}
+
+// Open review modal
+function openReviewModal(freelancerId) {
+    document.getElementById('reviewee_id').value = freelancerId;
+    new bootstrap.Modal(document.getElementById('reviewModal')).show();
+}
+
+// Update progress form action based on selected milestone
+document.getElementById('milestone_select')?.addEventListener('change', function() {
+    const form = document.getElementById('progressForm');
+    const newAction = form.action.replace(/milestones\/\d+\/update_progress/, `milestones/${this.value}/update_progress`);
+    form.action = newAction;
+});
+// Copy phone number to clipboard
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Show success message
+        const originalText = event.target.innerHTML;
+        event.target.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+        event.target.classList.remove('btn-outline-secondary');
+        event.target.classList.add('btn-success');
+        
+        setTimeout(function() {
+            event.target.innerHTML = originalText;
+            event.target.classList.remove('btn-success');
+            event.target.classList.add('btn-outline-secondary');
+        }, 2000);
+    }).catch(function(err) {
+        console.error('Failed to copy: ', err);
+        alert('Failed to copy phone number to clipboard');
+    });
+}
+</script>
 
 <style>
 .card {
@@ -414,4 +491,5 @@
     font-size: 0.75em;
 }
 </style>
+
 {% endblock %}
